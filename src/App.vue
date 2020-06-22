@@ -1,40 +1,17 @@
 <template>
     <div id="appRoot">
-        Прогноз || Дата {{ weather.date }} || Закат: {{weather.astronomy[0].sunrise }} || Рассвет: {{ weather.astronomy[0].sunset}}
-        <div v-for="item in weather.hourly">
-            <table>
-                <tr>
-                    <td style="width: 20px">
-                        <img :src="item.weatherIconUrl[0].value" style="width: 30px">
-                    </td>
-                    <td style="width: 100px">
-                        время: {{item.time / 100}}
-                    </td>
-                    <td style="width: 50px">
-                        {{item.tempC }}C
-                    </td>
-                    <td style="width: 120px">
-                        ветер: {{item.windspeedKmph}} км/ч
-                    </td>
-                    <td style="width: 140px">
-                        влажность: {{item.humidity}} %
-                    </td>
-                </tr>
-            </table>
+        <div class="search-header">
+            <input v-model="searchVal" placeholder="Введите данные для поиска" style="width: 90vw">
+            <button style="width: 10vw" @click="search">Искать</button>
         </div>
-        Курс валют к USD
-            <table>
-                <tr><td style="width: 60px">EUR:</td><td style="width: 150px">{{rate.rates.EUR}}</td></tr>
-                <tr><td style="width: 60px">RUB:</td><td style="width: 150px">{{rate.rates.RUB}}</td></tr>
-                <tr><td style="width: 60px">JPY:</td><td style="width: 150px">{{rate.rates.JPY}}</td></tr>
-                <tr><td style="width: 60px">PHP:</td><td style="width: 150px">{{rate.rates.PHP}}</td></tr>
-                <tr><td style="width: 60px">GBP:</td><td style="width: 150px">{{rate.rates.GBP}}</td></tr>
-                <tr><td style="width: 60px">TRY:</td><td style="width: 150px">{{rate.rates.TRY}}</td></tr>
-            </table>
-        Новости
-        <br>
-        <iframe src="/lenta.html" name="myFrame" width="1000px" height="500px" v-if="showNews"></iframe>
-        <p><a href="https://knews.kg/" target="myFrame" @click="showNews = true">Показать новости</a></p>
+        <div v-for="item in result" style="border: 1px solid #cccccc; margin: 5px; padding: 10px; border-radius: 10px">
+            <a :href="item.link">
+                <strong style="color: #0074D9">{{item.title}}</strong><br>
+                <span v-html="item.htmlSnippet" style="color: black"/><br>
+                <span style="color: #9e9e9e">{{item.displayLink}}</span>
+            </a>
+
+        </div>
     </div>
 </template>
 <script>
@@ -45,34 +22,31 @@
             axios
         },
         data: () => ({
-            weather: [],
-            rate: [],
-            showNews: false
+            searchVal: "",
+            result: []
         }),
         computed: {},
         methods: {
-            initialize() {
-                axios.get('http://api.worldweatheronline.com/premium/v1/weather.ashx?q=Bishkek&format=JSON&extra=&num_of_days=1&key=02a205e494a34e8fbce113550202206')
-                    .then(response => {
-                        console.log(response.data.data.weather[0]);
-                        this.weather = response.data.data.weather[0]
-                    })
-                axios.get(' https://api.exchangeratesapi.io/latest?base=USD')
-                    .then(response => {
-                        console.log(response.data);
-                        this.rate = response.data
-                    })
+            search() {
+               if (this.searchVal.length > 0) {
+                   axios.get('https://www.googleapis.com/customsearch/v1?key=AIzaSyC99dihJsCoEbbR-M68GtWfL3n2lGigIRQ&cx=003740742827908429876:n6-rptgxn0i&q=' + this.searchVal)
+                       .then(response => {
+                           console.log(response.data);
+                           this.result = response.data.items
+                       })
+               }
             }
         },
         beforeMount() {
-            this.initialize()
         }
     };
 </script>
 
 <style lang="stylus" scoped>
-    td {
-        border 1px solid #cccccc
-       text-align: center;
+    .search-header {
+        display: flex
+    }
+    a {
+        text-decoration none
     }
 </style>

@@ -21,8 +21,20 @@
                     </td>
                 </tr>
             </table>
-
         </div>
+        Курс валют к USD
+            <table>
+                <tr><td style="width: 60px">EUR:</td><td style="width: 150px">{{rate.rates.EUR}}</td></tr>
+                <tr><td style="width: 60px">RUB:</td><td style="width: 150px">{{rate.rates.RUB}}</td></tr>
+                <tr><td style="width: 60px">JPY:</td><td style="width: 150px">{{rate.rates.JPY}}</td></tr>
+                <tr><td style="width: 60px">PHP:</td><td style="width: 150px">{{rate.rates.PHP}}</td></tr>
+                <tr><td style="width: 60px">GBP:</td><td style="width: 150px">{{rate.rates.GBP}}</td></tr>
+                <tr><td style="width: 60px">TRY:</td><td style="width: 150px">{{rate.rates.TRY}}</td></tr>
+            </table>
+        Новости
+        <br>
+        <iframe src="/lenta.html" name="myFrame" width="1000px" height="500px" v-if="showNews"></iframe>
+        <p><a href="https://knews.kg/" target="myFrame" @click="showNews = true">Показать новости</a></p>
     </div>
 </template>
 <script>
@@ -33,7 +45,9 @@
             axios
         },
         data: () => ({
-            weather: []
+            weather: [],
+            rate: [],
+            showNews: false
         }),
         computed: {},
         methods: {
@@ -43,9 +57,14 @@
                         console.log(response.data.data.weather[0]);
                         this.weather = response.data.data.weather[0]
                     })
+                axios.get(' https://api.exchangeratesapi.io/latest?base=USD')
+                    .then(response => {
+                        console.log(response.data);
+                        this.rate = response.data
+                    })
             }
         },
-        created() {
+        beforeMount() {
             this.initialize()
         }
     };
